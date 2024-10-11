@@ -1,19 +1,14 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
+    "encoding/json"
 	"net/http"
+
+    "github.com/ansakharov/few_options_of_code_composition/1_simple_handler_that_fetch_data_from_repository/handler"
+	"github.com/ansakharov/few_options_of_code_composition/server_dto"
 )
-
-type QueryDtoIn struct {
-	TariffID int64 `json:"tariff_id"`
-}
-
-type QueryDtoOut struct {
-	AmountCommission float64 `json:"amount_commission"`
-}
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	// Check if the request method is POST
@@ -38,35 +33,40 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	_ = body
 	_ = ctx
-	var in QueryDtoIn
+	var in server_dto.QueryDtoIn
 
 	err = json.Unmarshal(body, &in)
 	if err != nil {
 		fmt.Println(err)
-
+	
 		return
 	}
 
-	out := QueryDtoOut{
+    
+
+	out := server_dto.QueryDtoOut{
 		AmountCommission: float64(in.TariffID),
 	}
 
 	output, err := json.Marshal(&out)
 	if err != nil {
 		fmt.Println(err)
-
+	
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-
+	
+    w.Header().Set("Content-Type", "application/json")
+	
 	_, _ = w.Write(output)
 }
 
 func main() {
 	http.HandleFunc("/", handleRequest)
+
 	fmt.Println("Server is starting on port 8080...")
+
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		fmt.Printf("Error starting server: %s\n", err)
 	}
